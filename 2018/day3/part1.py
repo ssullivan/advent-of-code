@@ -48,6 +48,7 @@ class Claim:
     return self._raw
 
 
+
 def intersect_range(value: int, min: int, max: int) -> bool:
   return value >= min and value <= max
 
@@ -61,7 +62,8 @@ def intersect_rect(a: Rect, b: Rect) -> bool:
 def intersect(lhs: Claim, rhs: Claim) -> bool:
   return intersect_rect(lhs.rect(), rhs.rect())
 
-
+def intersect_point(a: Rect, row, col):
+  return intersect_rect(a, Rect(col, row, 0, 0))
 def area(a: Rect, b: Rect) -> int:
   width = 0
   height = 0
@@ -84,31 +86,19 @@ if __name__ == "__main__":
   with open("input.txt", "r") as f:
     claims = [Claim(line.strip()) for line in f]
 
-    shared_area = 0
-    shared_claims = {}
-    for i in range(0, len(claims)):
-      for j in range(0, len(claims)):
-        if i == j:
-          continue
+    state_space = {}
 
-        if intersect(claims[i], claims[j]):
+    total = 0
+    for claim in claims:
+      for i in range(claim.rect().left(), claim.rect().right()):
+        for j in range(claim.rect().top(), claim.rect().bottom()):
+          key = str(i) + "." + str(j)
+          if key not in state_space:
+            state_space[key] = set()
+          state_space[key].add(claim)
 
-          if i < j:
-            key = str(i) + ":" + str(j)
-          else:
-            key = str(j) + ":" + str(i)
-
-          if key not in shared_claims:
-            shared_claims[key] = set([i, j])
-          else:
-            shared_claims[key].add(j)
-            shared_claims[key].add(i)
-
-    t = 0
-    for key in shared_claims:
-      items = list(shared_claims[key])
-      shared_area =  area(claims[items[0]].rect(), claims[items[1]].rect())
-
-      t += shared_area
-      print(f'{key}, {len(shared_claims[key])} {shared_claims[key]} {shared_area}')
-    print(t)
+    total = 0
+    for key in state_space:
+      if len(state_space[key]) >= 2:
+        total += 1
+    print(f'{total}')
