@@ -1,5 +1,6 @@
 import re
 
+
 class Rect:
   def __init__(self, left: int, top: int, width: int, height: int):
     self._left = left
@@ -39,7 +40,8 @@ class Claim:
     claim_pattern = re.compile("^(#\d+)\s+@\s+(\d+),(\d+):\s+(\d+)x(\d+)$")
     match = claim_pattern.match(raw_claim)
     self._id = match.group(1)
-    self._rect = Rect(int(match.group(2)), int(match.group(3)), int(match.group(4)), int(match.group(5)))
+    self._rect = Rect(int(match.group(2)), int(match.group(3)),
+                      int(match.group(4)), int(match.group(5)))
 
   def rect(self) -> Rect:
     return self._rect
@@ -48,38 +50,23 @@ class Claim:
     return self._raw
 
 
-
 def intersect_range(value: int, min: int, max: int) -> bool:
   return value >= min and value <= max
 
+
 def intersect_rect(a: Rect, b: Rect) -> bool:
-  return (intersect_range(b.left(), a.left(), a.right()) or \
-      intersect_range(a.left(), b.left(), b.right())) and \
-         (intersect_range(b.top(), a.top(), a.bottom()) or \
-      intersect_range(a.top(), b.top(), b.bottom()))
+  return (intersect_range(b.left(), a.left(), a.right()) or
+          intersect_range(a.left(), b.left(), b.right())) and \
+         (intersect_range(b.top(), a.top(), a.bottom()) or
+          intersect_range(a.top(), b.top(), b.bottom()))
 
 
 def intersect(lhs: Claim, rhs: Claim) -> bool:
   return intersect_rect(lhs.rect(), rhs.rect())
 
+
 def intersect_point(a: Rect, row, col):
   return intersect_rect(a, Rect(col, row, 0, 0))
-def area(a: Rect, b: Rect) -> int:
-  width = 0
-  height = 0
-  if intersect_range(b.left(), a.left(), a.right()):
-    width = a.right() - b.left()
-  elif intersect_range(a.left(), b.left(), b.right()):
-    width = b.right() - a.left()
-  else:
-    print()
-  if intersect_range(b.top(), a.top(), a.bottom()):
-    height = a.bottom() - b.top()
-  elif intersect_range(a.top(), b.top(), b.bottom()):
-    height = b.bottom() - a.top()
-  else:
-    print()
-  return width * height
 
 
 if __name__ == "__main__":
