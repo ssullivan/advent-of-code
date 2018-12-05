@@ -1,3 +1,5 @@
+import re
+
 class Rect:
   def __init__(self, left: int, top: int, width: int, height: int):
     self._left = left
@@ -23,6 +25,12 @@ class Claim:
     self._id = id
     self._rect = Rect(left, top, width, height)
 
+  def __init__(self, raw_claim: str):
+    claim_pattern = re.compile("^(#\d+)\s+@\s+(\d+),(\d+):\s+(\d+)x(\d+)$")
+    match = claim_pattern.match(raw_claim)
+    self._id = match.group(1)
+    self._rect = Rect(int(match.group(2)), int(match.group(3)), int(match.group(4)), int(match.group(5)))
+
   def rect(self) -> Rect:
     return self._rect
 
@@ -39,3 +47,11 @@ def intersect_rect(lhs: Rect, rhs: Rect) -> bool:
 
 def intersect(lhs: Claim, rhs: Claim) -> bool:
   return intersect_rect(lhs.rect(), rhs.rect())
+
+
+
+if __name__ == "__main__":
+  with open("input.txt", "r") as f:
+    claims = [Claim(line.strip()) for line in f]
+
+  print()
