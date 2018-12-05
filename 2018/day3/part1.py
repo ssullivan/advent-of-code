@@ -106,13 +106,9 @@ if __name__ == "__main__":
 
     t = 0
     for key in shared_claims:
-      total = 0
-      for x in shared_claims[key]:
-        for y in shared_claims[key]:
-          if x == y:
-            continue
-          total += area(claims[x].rect(), claims[y].rect())
+      items = list(shared_claims[key])
+      shared_area =  area(claims[items[0]].rect(), claims[items[1]].rect())
 
-      t += total
-      print(f'{key}, {len(shared_claims[key])} {total}')
+      t += shared_area
+      print(f'{key}, {len(shared_claims[key])} {shared_claims[key]} {shared_area}')
     print(t)
