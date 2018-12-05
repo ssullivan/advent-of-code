@@ -6,6 +6,8 @@ class Rect:
     self._top = top
     self._width = width
     self._height = height
+    self._right = self._left + self._width
+    self._bottom = self._top + self._height
 
   def left(self) -> int:
     return self._left
@@ -50,27 +52,67 @@ def intersect_range(value: int, min: int, max: int) -> bool:
   return value >= min and value <= max
 
 def intersect_rect(a: Rect, b: Rect) -> bool:
-  return intersect_range(b.left(), a.left(), a.right()) or \
-      intersect_range(a.left(), b.left(), b.right()) or \
-      intersect_range(b.top(), a.top(), a.bottom()) or \
-      intersect_range(a.top(), b.top(), b.bottom())
+  return (intersect_range(b.left(), a.left(), a.right()) or \
+      intersect_range(a.left(), b.left(), b.right())) and \
+         (intersect_range(b.top(), a.top(), a.bottom()) or \
+      intersect_range(a.top(), b.top(), b.bottom()))
 
 
 def intersect(lhs: Claim, rhs: Claim) -> bool:
   return intersect_rect(lhs.rect(), rhs.rect())
 
 
+def area(a: Rect, b: Rect) -> int:
+  width = 0
+  height = 0
+  if intersect_range(b.left(), a.left(), a.right()):
+    width = a.right() - b.left()
+  elif intersect_range(a.left(), b.left(), b.right()):
+    width = b.right() - a.left()
+  else:
+    print()
+  if intersect_range(b.top(), a.top(), a.bottom()):
+    height = a.bottom() - b.top()
+  elif intersect_range(a.top(), b.top(), b.bottom()):
+    height = b.bottom() - a.top()
+  else:
+    print()
+  return width * height
+
 
 if __name__ == "__main__":
   with open("input.txt", "r") as f:
     claims = [Claim(line.strip()) for line in f]
 
+    shared_area = 0
+    shared_claims = {}
     for i in range(0, len(claims)):
       for j in range(0, len(claims)):
         if i == j:
           continue
 
         if intersect(claims[i], claims[j]):
-          print(f'intersect {claims[i]}, {claims[j]}')
-        else:
-          print(f'dont intersect {claims[i]}, {claims[j]}')
+
+          if i < j:
+            key = str(i) + ":" + str(j)
+          else:
+            key = str(j) + ":" + str(i)
+
+          if key not in shared_claims:
+            shared_claims[key] = set([i, j])
+          else:
+            shared_claims[key].add(j)
+            shared_claims[key].add(i)
+
+    t = 0
+    for key in shared_claims:
+      total = 0
+      for x in shared_claims[key]:
+        for y in shared_claims[key]:
+          if x == y:
+            continue
+          total += area(claims[x].rect(), claims[y].rect())
+
+      t += total
+      print(f'{key}, {len(shared_claims[key])} {total}')
+    print(t)
