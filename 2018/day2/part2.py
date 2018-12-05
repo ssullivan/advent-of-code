@@ -1,51 +1,35 @@
+
+def get_barcode_distance(lhs: str, rhs: str):
+  delta = 0
+  common = ''
+  for i in range(0, len(lhs)):
+    x = lhs[i:i+1]
+    y = rhs[i:i+1]
+    if not(x == y):
+      delta = delta + 1
+    else:
+      common = common + x
+  return delta, common
+
 if __name__ == "__main__":
-  with open("sample.txt", "r") as f:
-    barcodes = []
-    raw_lines = []
-    for line in f:
-      barcodes.append(set(list(line.replace("\n", ""))))
-      raw_lines.append(line.replace("\n", ""))
+  with open("input.txt", "r") as f:
+    barcodes = [line.strip() for line in f]
+    barcodes.sort()
 
-    len_barcodes = len(barcodes)
-    lhs_closest = None
-    rhs_closest = None
-    closest = None
-    for i in range(0, len_barcodes):
-      for j in range(0, len_barcodes):
-        if i != j:
-          lhs = barcodes[i]
-          rhs = barcodes[j]
+    min = None
+    shared = None
+    for i in range(0, len(barcodes)):
+      for j in range(0, len(barcodes)):
+        if (i == j):
+          continue
 
-          delta = len(lhs.difference(rhs))
-
-          if closest is None:
-            lhs_closest = i
-            rhs_closest = j
-            closest = delta
-          elif delta < closest:
-            lhs_closest = i
-            rhs_closest = j
-            closest = delta
-
-    lhs = raw_lines[lhs_closest]
-    rhs = raw_lines[rhs_closest]
-    retval = []
-    maxI = len(lhs)
-
-    if len(rhs) < len(lhs):
-      maxI = len(rhs)
-
-    for i in range(0, maxI):
-      if lhs[i:i+1] == rhs[i:i+1]:
-        retval.append(lhs[i:i+1])
+        delta, incommon = get_barcode_distance(barcodes[i], barcodes[j])
+        print(f'{barcodes[i]} - {barcodes[j]} = {delta}, {incommon}')
+        if min == None or delta < min:
+          min = delta
+          shared = incommon
+    print(shared)
 
 
 
-    print(str(lhs_closest) + ", " + raw_lines[lhs_closest])
-    print(str(rhs_closest) + ", " + raw_lines[rhs_closest])
-    print("".join(retval))
-    print(closest)
 
-#fghij
-#fguij
-#fgij
