@@ -43,6 +43,9 @@ class Claim:
     self._rect = Rect(int(match.group(2)), int(match.group(3)),
                       int(match.group(4)), int(match.group(5)))
 
+  def id(self):
+    return self._id
+
   def rect(self) -> Rect:
     return self._rect
 
@@ -72,21 +75,31 @@ def intersect_point(a: Rect, row, col):
 if __name__ == "__main__":
   with open("input.txt", "r") as f:
     claims = [Claim(line.strip()) for line in f]
-
+    foo = set()
     state_space = {}
 
     total = 0
+    overlapped = {}
     for claim in claims:
+      overlapped[claim.id()] = 0
       for i in range(claim.rect().left(), claim.rect().right()):
         for j in range(claim.rect().top(), claim.rect().bottom()):
           key = str(i) + "." + str(j)
+
           if key not in state_space:
             state_space[key] = set()
+
           state_space[key].add(claim)
 
-    total = 0
-    for key in state_space:
-      if len(state_space[key]) >= 2:
-        total += 1
 
-    print(f'{total}')
+
+    for claim in claims:
+      total = 0
+      for key in state_space:
+        state = state_space[key]
+        if claim in state and len(state) >= 2:
+          total += 1
+
+      if total <= 0:
+        print(f'{claim.id()}, {total}')
+        break
